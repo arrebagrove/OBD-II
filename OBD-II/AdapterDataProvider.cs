@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using TTGStudios.OBDII;
 
-namespace OBDII
+namespace TTGStudios.OBDII
 {
+	// This is the base type of any class that will communicate directly to a physical OBD-II adapter.
 	public abstract class AdapterDataProvider : IVehicleDataProvider
 	{
 		public abstract Task ConnectAsync();
