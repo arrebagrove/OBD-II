@@ -62,7 +62,7 @@ namespace Elm327Test
 
 		StreamSocket _socket;
 
-		private void SendButton_Click(object sender, RoutedEventArgs e)
+		private async void SendButton_Click(object sender, RoutedEventArgs e)
 		{
 				string command = commandTextBox.Text + "\n";
 				commandTextBox.Text = string.Empty;
@@ -70,8 +70,13 @@ namespace Elm327Test
 
 			try
 			{
-				DataWriter writer = new DataWriter(_socket.OutputStream);
-				writer.WriteString(command);
+				using (DataWriter writer = new DataWriter(_socket.OutputStream))
+				{
+					writer.WriteString(command);
+					await writer.StoreAsync();
+					await writer.FlushAsync();
+					writer.DetachStream();
+				}
 			}
 			catch (Exception exception)
 			{
@@ -80,19 +85,23 @@ namespace Elm327Test
 
 			try
 			{
-				DataReader reader = new DataReader(_socket.InputStream);
-				string response = reader.ReadString(1);
-				resultsTextBox.Text += response;
-				response = reader.ReadString(1);
-				resultsTextBox.Text += response;
-				response = reader.ReadString(1);
-				resultsTextBox.Text += response;
-				response = reader.ReadString(1);
-				resultsTextBox.Text += response;
-				response = reader.ReadString(1);
-				resultsTextBox.Text += response;
-				response = reader.ReadString(1);
-				resultsTextBox.Text += response;
+				using (DataReader reader = new DataReader(_socket.InputStream))
+				{
+					await reader.LoadAsync(1024);
+					string response = reader.ReadString(1);
+					resultsTextBox.Text += response;
+					response = reader.ReadString(1);
+					resultsTextBox.Text += response;
+					response = reader.ReadString(1);
+					resultsTextBox.Text += response;
+					response = reader.ReadString(1);
+					resultsTextBox.Text += response;
+					response = reader.ReadString(1);
+					resultsTextBox.Text += response;
+					response = reader.ReadString(1);
+					resultsTextBox.Text += response;
+					reader.DetachStream();
+				}
 			}
 			catch (Exception exception)
 			{
