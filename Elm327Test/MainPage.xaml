@@ -1,0 +1,50 @@
+﻿<phone:PhoneApplicationPage
+	x:Class="Elm327Test.MainPage"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	FontFamily="{StaticResource PhoneFontFamilyNormal}"
+	FontSize="{StaticResource PhoneFontSizeNormal}"
+	Foreground="{StaticResource PhoneForegroundBrush}"
+	SupportedOrientations="Portrait" Orientation="Portrait"
+	shell:SystemTray.IsVisible="True">
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<TextBlock
+			Margin="0,8"
+			HorizontalAlignment="Center"
+			Text="ELM327 Protocol Test"
+			Style="{StaticResource PhoneTextExtraLargeStyle}" />
+
+		<Grid Grid.Row="1">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="auto" />
+			</Grid.ColumnDefinitions>
+
+			<TextBox x:Name="commandTextBox"/>
+			<Button
+				Grid.Column="1"
+				Content="send"
+				Click="SendButton_Click"/>
+
+		</Grid>
+
+		<TextBox
+			x:Name="resultsTextBox"
+			Grid.Row="2"
+			IsReadOnly="True" />
+
+	</Grid>
+
+</phone:PhoneApplicationPage>
