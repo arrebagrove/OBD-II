@@ -64,7 +64,7 @@ namespace Elm327Test
 
 		private async void SendButton_Click(object sender, RoutedEventArgs e)
 		{
-				string command = commandTextBox.Text + "\n";
+				string command = commandTextBox.Text + "\r";
 				commandTextBox.Text = string.Empty;
 				resultsTextBox.Text += command;
 
@@ -87,18 +87,12 @@ namespace Elm327Test
 			{
 				using (DataReader reader = new DataReader(_socket.InputStream))
 				{
+					reader.InputStreamOptions = InputStreamOptions.Partial;
+
+					await Task.Delay(1000);
+
 					await reader.LoadAsync(1024);
-					string response = reader.ReadString(1);
-					resultsTextBox.Text += response;
-					response = reader.ReadString(1);
-					resultsTextBox.Text += response;
-					response = reader.ReadString(1);
-					resultsTextBox.Text += response;
-					response = reader.ReadString(1);
-					resultsTextBox.Text += response;
-					response = reader.ReadString(1);
-					resultsTextBox.Text += response;
-					response = reader.ReadString(1);
+					string response = reader.ReadString(reader.UnconsumedBufferLength);
 					resultsTextBox.Text += response;
 					reader.DetachStream();
 				}
