@@ -1,11 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace TTGStudios.OBDII
 {
 	public class SimulatedDataProvider : IVehicleDataProvider
 	{
+		public SimulatedDataProvider()
+		{
+			_codes = new List<string>(new string[] { "P0440" });
+		}
+
 		public Task ConnectAsync()
 		{
 			TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
@@ -20,16 +24,19 @@ namespace TTGStudios.OBDII
 			return tcs.Task;
 		}
 
-		public Task<IEnumerable<object>> GetDtcsAsync()
+		public Task<IEnumerable<string>> GetDtcsAsync()
 		{
-			TaskCompletionSource<IEnumerable<object>> tcs = new TaskCompletionSource<IEnumerable<object>>();
-			tcs.SetResult(null);
+			TaskCompletionSource<IEnumerable<string>> tcs = new TaskCompletionSource<IEnumerable<string>>();
+			tcs.SetResult(_codes);
 			return tcs.Task;
 		}
+
+		List<string> _codes;
 
 		public Task ClearDtcsAsync()
 		{
 			TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+			_codes.Clear();
 			tcs.SetResult(null);
 			return tcs.Task;
 		}

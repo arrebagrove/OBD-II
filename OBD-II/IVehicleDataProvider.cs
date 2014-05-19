@@ -7,7 +7,7 @@ namespace TTGStudios.OBDII
 	{
 		Task ConnectAsync();
 		Task<string> GetVinAsync();
-		Task<IEnumerable<object>> GetDtcsAsync();
+		Task<IEnumerable<string>> GetDtcsAsync();
 		Task ClearDtcsAsync();
 	}
 }
