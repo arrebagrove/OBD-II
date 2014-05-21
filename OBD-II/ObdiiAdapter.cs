@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using TTGStudios.OBDII;
+using TTGStudios.OBDII.Protocols;
 
 namespace TTGStudios.OBDII
 {
@@ -17,13 +14,18 @@ namespace TTGStudios.OBDII
 
 		async Task Initialize()
 		{
+			// Reset adapter.
 			await SendCommand("atz");
+
+			// Automatically detect protocol.
+			await SendCommand("atsp0");
+
+			// Get detected protocol.
+			string response = await SendCommand("atdpn");
+#error Set _protocol based on atdp or atdpn response.
 		}
 
-		public async Task<string> GetVinAsync()
-		{
-			return await SendCommand("atz");
-		}
+		IObdiiProtocol _protocol;
 
 		public async Task<IEnumerable<string>> GetDtcsAsync()
 		{
@@ -36,6 +38,7 @@ namespace TTGStudios.OBDII
 			await SendCommand("04");
 		}
 
+#error Implement SendCommand here and create abstract methods Write(string) and Read(Func<string, bool> isDone).
 		protected abstract Task<string> SendCommand(string command);
 	}
 }

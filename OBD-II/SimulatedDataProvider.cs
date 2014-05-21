@@ -17,13 +17,6 @@ namespace TTGStudios.OBDII
 			return tcs.Task;
 		}
 
-		public Task<string> GetVinAsync()
-		{
-			TaskCompletionSource<string> tcs = new TaskCompletionSource<string>();
-			tcs.SetResult("1G2WP1212WF340276");
-			return tcs.Task;
-		}
-
 		public Task<IEnumerable<string>> GetDtcsAsync()
 		{
 			TaskCompletionSource<IEnumerable<string>> tcs = new TaskCompletionSource<IEnumerable<string>>();
