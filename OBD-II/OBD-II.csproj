@@ -39,6 +39,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\CommandNotUnderstoodException.cs" />
+    <Compile Include="Exceptions\CommunicationsException.cs" />
     <Compile Include="Protocols\CanProtocol.cs" />
     <Compile Include="Protocols\IObdiiProtocol.cs" />
     <Compile Include="ObdiiAdapter.cs" />
