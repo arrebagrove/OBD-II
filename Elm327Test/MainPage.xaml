@@ -43,7 +43,8 @@
 		<TextBox
 			x:Name="resultsTextBox"
 			Grid.Row="2"
-			IsReadOnly="True" />
+			IsReadOnly="True"
+			Text=">" />
 
 	</Grid>
 

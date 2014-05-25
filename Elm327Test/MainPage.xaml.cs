@@ -1,15 +1,11 @@
 ﻿using Microsoft.Phone.Controls;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Windows.Networking.Proximity;
-using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Elm327Test
 {
@@ -50,8 +46,8 @@ namespace Elm327Test
 
 				if (obdlink != null)
 				{
-					_socket = new StreamSocket();
-					await _socket.ConnectAsync(obdlink.HostName, "1");
+					_adapter = new TestBluetoothAdapter(obdlink.HostName);
+					await _adapter.ConnectAsync();
 				}
 			}
 			catch (Exception exception)
@@ -60,46 +56,22 @@ namespace Elm327Test
 			}
 		}
 
-		StreamSocket _socket;
+		TestBluetoothAdapter _adapter;
 
 		private async void SendButton_Click(object sender, RoutedEventArgs e)
 		{
-				string command = commandTextBox.Text + "\r";
-				commandTextBox.Text = string.Empty;
-				resultsTextBox.Text += command;
+			string command = commandTextBox.Text;
+			commandTextBox.Text = string.Empty;
+			resultsTextBox.Text += command + "\n";
 
 			try
 			{
-				using (DataWriter writer = new DataWriter(_socket.OutputStream))
-				{
-					writer.WriteString(command);
-					await writer.StoreAsync();
-					await writer.FlushAsync();
-					writer.DetachStream();
-				}
+				resultsTextBox.Text += await _adapter.SendCommandPassthroughAsync(command);
+				resultsTextBox.Text += "\n>";
 			}
 			catch (Exception exception)
 			{
-				MessageBox.Show(exception.Message + "\n\n" + exception.StackTrace, exception.GetType().ToString(), MessageBoxButton.OK);
-			}
-
-			try
-			{
-				using (DataReader reader = new DataReader(_socket.InputStream))
-				{
-					reader.InputStreamOptions = InputStreamOptions.Partial;
-
-					await Task.Delay(1000);
-
-					await reader.LoadAsync(1024);
-					string response = reader.ReadString(reader.UnconsumedBufferLength);
-					resultsTextBox.Text += response;
-					reader.DetachStream();
-				}
-			}
-			catch (Exception exception)
-			{
-				MessageBox.Show(exception.Message + "\n\n" + exception.StackTrace, exception.GetType().ToString(), MessageBoxButton.OK);
+				MessageBox.Show(exception.Message, exception.GetType().ToString(), MessageBoxButton.OK);
 			}
 		}
 	}

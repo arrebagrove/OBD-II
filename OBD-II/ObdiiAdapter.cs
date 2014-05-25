@@ -44,7 +44,7 @@ namespace TTGStudios.OBDII
 			await SendCommandAsync("04");
 		}
 
-		protected async override Task<string> SendCommandAsync(string command)
+		protected async virtual Task<string> SendCommandAsync(string command)
 		{
 			// Terminate with 0x0D (LF).
 			if (!command.EndsWith("\r"))
@@ -54,19 +54,19 @@ namespace TTGStudios.OBDII
 
 			await WriteAsync(command);
 
-			// Read the response until it ends with > or ?.
+			// Read the response until it ends with >.
 			string response = await ReadAsync(TimeSpan.Zero);
-			while (!response.EndsWith(">") && !response.EndsWith("?"))
+			while (!response.EndsWith(">"))
 			{
 				response += await ReadAsync(TimeSpan.FromMilliseconds(50));
 			}
 
 			// Parse the response. Look for 1. the command echoed back correctly,
-			// 2. the effective response and 3. the prompt character > or ?.
+			// 2. the effective response and 3. the prompt character >.
 			string rawCommand = command.Trim(new char[] { '\r', '\n' });
 			string responseFormat = string.Format(
 				CultureInfo.InvariantCulture,
-				">{0}[\r\n]+(.*)([/?/>])$",
+				"^{0}[\\r\\n]+(.*)[\\r\\n]+>$",
 				rawCommand);
 			Regex regex = new Regex(responseFormat, RegexOptions.CultureInvariant | RegexOptions.Multiline);
 			Match match = regex.Match(response);
@@ -74,10 +74,9 @@ namespace TTGStudios.OBDII
 			if (match.Success)
 			{
 				// Regex matched which means command was echoed back correctly.
-				response = match.Groups[0].Captures[1].Value;
-				string prompt = match.Groups[0].Captures[2].Value;
+				response = match.Groups[1].Captures[0].Value.Trim(new char[] { '\r', '\n' });
 
-				if (prompt != ">")
+				if (response.StartsWith("?"))
 				{
 					// The command was not understood.
 					string message = string.Format(

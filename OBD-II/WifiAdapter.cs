@@ -10,7 +10,12 @@ namespace TTGStudios.OBDII
 			throw new NotImplementedException();
 		}
 
-		protected override Task<string> SendCommand(string command)
+		protected async override Task WriteAsync(string command)
+		{
+			throw new NotImplementedException();
+		}
+
+		protected async override Task<string> ReadAsync(TimeSpan delayTimeSpan)
 		{
 			throw new NotImplementedException();
 		}
