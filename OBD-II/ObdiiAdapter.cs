@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TTGStudios.OBDII.Exceptions;
 using TTGStudios.OBDII.Protocols;
 
 namespace TTGStudios.OBDII
@@ -9,36 +13,96 @@ namespace TTGStudios.OBDII
 	{
 		public async virtual Task ConnectAsync()
 		{
-			await Initialize();
+			await InitializeAsync();
 		}
 
-		async Task Initialize()
+		async Task InitializeAsync()
 		{
 			// Reset adapter.
-			await SendCommand("atz");
+			await SendCommandAsync("atz");
+
+			// Echo command for verification.
+			await SendCommandAsync("ate1");
 
 			// Automatically detect protocol.
-			await SendCommand("atsp0");
+			await SendCommandAsync("atsp0");
 
 			// Get detected protocol.
-			string response = await SendCommand("atdpn");
-#error Set _protocol based on atdp or atdpn response.
+			string response = await SendCommandAsync("atdpn");
 		}
 
 		IObdiiProtocol _protocol;
 
 		public async Task<IEnumerable<string>> GetDtcsAsync()
 		{
-			string response = await SendCommand("03");
+			string response = await SendCommandAsync("03");
 			return new string[] { };
 		}
 
 		public async Task ClearDtcsAsync()
 		{
-			await SendCommand("04");
+			await SendCommandAsync("04");
 		}
 
-#error Implement SendCommand here and create abstract methods Write(string) and Read(Func<string, bool> isDone).
-		protected abstract Task<string> SendCommand(string command);
+		protected async override Task<string> SendCommandAsync(string command)
+		{
+			// Terminate with 0x0D (LF).
+			if (!command.EndsWith("\r"))
+			{
+				command += "\r";
+			}
+
+			await WriteAsync(command);
+
+			// Read the response until it ends with > or ?.
+			string response = await ReadAsync(TimeSpan.Zero);
+			while (!response.EndsWith(">") && !response.EndsWith("?"))
+			{
+				response += await ReadAsync(TimeSpan.FromMilliseconds(50));
+			}
+
+			// Parse the response. Look for 1. the command echoed back correctly,
+			// 2. the effective response and 3. the prompt character > or ?.
+			string rawCommand = command.Trim(new char[] { '\r', '\n' });
+			string responseFormat = string.Format(
+				CultureInfo.InvariantCulture,
+				">{0}[\r\n]+(.*)([/?/>])$",
+				rawCommand);
+			Regex regex = new Regex(responseFormat, RegexOptions.CultureInvariant | RegexOptions.Multiline);
+			Match match = regex.Match(response);
+
+			if (match.Success)
+			{
+				// Regex matched which means command was echoed back correctly.
+				response = match.Groups[0].Captures[1].Value;
+				string prompt = match.Groups[0].Captures[2].Value;
+
+				if (prompt != ">")
+				{
+					// The command was not understood.
+					string message = string.Format(
+						CultureInfo.InvariantCulture,
+						"Sent command: {0}; response: {1}",
+						rawCommand,
+						response);
+					throw new CommandNotUnderstoodException(message);
+				}
+			}
+			else
+			{
+				// Command echoed back is not what was sent.
+				string message = string.Format(
+					CultureInfo.InvariantCulture,
+					"Sent command: {0}; response: {1}",
+					rawCommand,
+					response);
+				throw new CommunicationsException(message);
+			}
+
+			return response;
+		}
+
+		protected abstract Task WriteAsync(string command);
+		protected abstract Task<string> ReadAsync(TimeSpan delayTimeSpan);
 	}
 }

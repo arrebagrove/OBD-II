@@ -24,14 +24,8 @@ namespace TTGStudios.OBDII.WP8
 
 		StreamSocket _socket;
 
-		protected async override Task<string> SendCommand(string command)
+		protected async override Task WriteAsync(string command)
 		{
-			// Terminate with 0x0D (LF).
-			if (!command.EndsWith("\r"))
-			{
-				command += "\r";
-			}
-
 			using (DataWriter writer = new DataWriter(_socket.OutputStream))
 			{
 				writer.WriteString(command);
@@ -39,13 +33,15 @@ namespace TTGStudios.OBDII.WP8
 				await writer.FlushAsync();
 				writer.DetachStream();
 			}
+		}
+
+		protected async override Task<string> ReadAsync(TimeSpan delayTimeSpan)
+		{
+			await Task.Delay(delayTimeSpan);
 
 			using (DataReader reader = new DataReader(_socket.InputStream))
 			{
 				reader.InputStreamOptions = InputStreamOptions.Partial;
-
-				await Task.Delay(1000);
-
 				await reader.LoadAsync(1024);
 				string response = reader.ReadString(reader.UnconsumedBufferLength);
 				reader.DetachStream();
