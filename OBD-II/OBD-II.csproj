@@ -46,7 +46,14 @@
     <Compile Include="ObdiiAdapter.cs" />
     <Compile Include="IVehicleDataProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocols\ISO_14230_4_KWP.cs" />
+    <Compile Include="Protocols\ISO_15765_4_CAN.cs" />
+    <Compile Include="Protocols\ISO_9141_2.cs" />
     <Compile Include="Protocols\NotCanProtocol.cs" />
+    <Compile Include="Protocols\ProtocolCommon.cs" />
+    <Compile Include="Protocols\SAE_J1850_PWM.cs" />
+    <Compile Include="Protocols\SAE_J1850_VPW.cs" />
+    <Compile Include="Protocols\SAE_J1939_CAN.cs" />
     <Compile Include="SerialAdapter.cs" />
     <Compile Include="SimulatedDataProvider.cs" />
     <Compile Include="WifiAdapter.cs" />

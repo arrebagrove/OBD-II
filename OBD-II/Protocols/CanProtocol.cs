@@ -1,10 +1,12 @@
-﻿namespace TTGStudios.OBDII.Protocols
+﻿using System.Collections.Generic;
+
+namespace TTGStudios.OBDII.Protocols
 {
-	public class CanProtocol : IObdiiProtocol
+	public class CanProtocol : ProtocolCommon
 	{
-		public string[] IntrepretTroubleCodesResponse(string response, bool echo, string command)
+		protected override IEnumerable<ushort> GetTroubleCodeValues(string response)
 		{
-			throw new System.NotImplementedException();
+			return new ushort[] { };
 		}
 	}
 }

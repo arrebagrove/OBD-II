@@ -21,14 +21,63 @@ namespace TTGStudios.OBDII
 			// Reset adapter.
 			await SendCommandAsync("atz");
 
-			// Echo command for verification.
+			// Echo commands for verification.
 			await SendCommandAsync("ate1");
 
 			// Automatically detect protocol.
 			await SendCommandAsync("atsp0");
 
+			// Force protocol detection to happen now by sending a simple OBD-II command.
+			await SendCommandAsync("01 00");
+
 			// Get detected protocol.
 			string response = await SendCommandAsync("atdpn");
+
+			Regex regex = new Regex("[Aa]([1-9a-fA-F])$", RegexOptions.CultureInvariant | RegexOptions.Multiline);
+			Match match = regex.Match(response);
+			if (match.Success)
+			{
+				string protocolCode = match.Groups[1].Captures[0].Value;
+				switch (protocolCode)
+				{
+					case "1":
+						_protocol = new SAE_J1850_PWM();
+						break;
+
+					case "2":
+						_protocol = new SAE_J1850_VPW();
+						break;
+
+					case "3":
+						_protocol = new ISO_9141_2();
+						break;
+
+					case "4":
+					case "5":
+						_protocol = new ISO_14230_4_KWP();
+						break;
+
+					case "6":
+					case "7":
+					case "8":
+					case "9":
+						_protocol = new ISO_15765_4_CAN();
+						break;
+
+					case "a":
+					case "A":
+						_protocol = new SAE_J1939_CAN();
+						break;
+				}
+			}
+			else
+			{
+				string message = string.Format(
+					CultureInfo.InvariantCulture,
+					"Cannot find protocol. Sent command: atdpn; response: {0}",
+					response);
+				throw new CommunicationsException(message);
+			}
 		}
 
 		IObdiiProtocol _protocol;
@@ -36,7 +85,7 @@ namespace TTGStudios.OBDII
 		public async Task<IEnumerable<string>> GetDtcsAsync()
 		{
 			string response = await SendCommandAsync("03");
-			return new string[] { };
+			return _protocol.InterpretTroubleCodesResponse(response);
 		}
 
 		public async Task ClearDtcsAsync()

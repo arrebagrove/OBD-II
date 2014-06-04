@@ -1,7 +1,9 @@
-﻿namespace TTGStudios.OBDII.Protocols
+﻿using System.Collections.Generic;
+
+namespace TTGStudios.OBDII.Protocols
 {
 	public interface IObdiiProtocol
 	{
-		string[] IntrepretTroubleCodesResponse(string response, bool echo, string command);
+		IEnumerable<string> InterpretTroubleCodesResponse(string response);
 	}
 }
