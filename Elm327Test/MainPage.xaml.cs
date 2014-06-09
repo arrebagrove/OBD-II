@@ -66,12 +66,26 @@ namespace Elm327Test
 
 			try
 			{
-				resultsTextBox.Text += await _adapter.SendCommandPassthroughAsync(command);
-				resultsTextBox.Text += "\n>";
+				if (command == "03")
+				{
+					var codes = await _adapter.GetDtcsAsync();
+					foreach (string code in codes)
+					{
+						resultsTextBox.Text += code + "\n";
+					}
+				}
+				else
+				{
+					resultsTextBox.Text += await _adapter.SendCommandPassthroughAsync(command) + "\n";
+				}
 			}
 			catch (Exception exception)
 			{
 				MessageBox.Show(exception.Message, exception.GetType().ToString(), MessageBoxButton.OK);
+			}
+			finally
+			{
+				resultsTextBox.Text += ">";
 			}
 		}
 	}
