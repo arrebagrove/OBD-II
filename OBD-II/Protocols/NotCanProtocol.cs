@@ -15,14 +15,14 @@ namespace TTGStudios.OBDII.Protocols
 			if (match.Success)
 			{
 				// Pull out pairs of bytes.
-				response = match.Captures[0].Value;
+				response = match.Groups[1].Value;
 				regex = new Regex("(?:([0-9a-f]{2})\\s*){2}", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 				MatchCollection matches = regex.Matches(response);
 				foreach (Match m in matches)
 				{
 					if (m.Success)
 					{
-						string hexWordString = m.Groups[0].Captures[0].Value + m.Groups[0].Captures[1].Value;
+						string hexWordString = m.Groups[1].Captures[0].Value + m.Groups[1].Captures[1].Value;
 						ushort value = 0;
 						for (int n = 0; n < 4; n++)
 						{
