@@ -48,6 +48,7 @@ namespace Elm327Test
 				{
 					_adapter = new TestBluetoothAdapter(obdlink.HostName);
 					await _adapter.ConnectAsync();
+					sendButton.IsEnabled = true;
 				}
 			}
 			catch (Exception exception)
@@ -81,7 +82,13 @@ namespace Elm327Test
 			}
 			catch (Exception exception)
 			{
-				MessageBox.Show(exception.Message, exception.GetType().ToString(), MessageBoxButton.OK);
+				string message = exception.Message.Split('.').LastOrDefault();
+				string caption = "error";
+#if DEBUG
+				message += "\n\n" + exception.StackTrace;
+				caption = exception.GetType().ToString();
+#endif
+				MessageBox.Show(message, caption, MessageBoxButton.OK);
 			}
 			finally
 			{

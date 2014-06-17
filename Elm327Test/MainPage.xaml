@@ -34,8 +34,10 @@
 
 			<TextBox x:Name="commandTextBox"/>
 			<Button
+				x:Name="sendButton"
 				Grid.Column="1"
 				Content="send"
+				IsEnabled="False"
 				Click="SendButton_Click"/>
 
 		</Grid>
