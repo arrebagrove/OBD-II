@@ -20,6 +20,8 @@ namespace TTGStudios.OBDII.WP8
 			DisposeSocket();
 			_socket = new StreamSocket();
 			await _socket.ConnectAsync(_hostName, "1");
+
+			await base.ConnectAsync();
 		}
 
 		StreamSocket _socket;
